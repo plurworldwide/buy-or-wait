@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Buy or Wait? — the right price, right now</title>
-<meta name="description" content="Check today's best price on idealo against the last 30 days, and see if it's cheaper elsewhere in Europe.">
+<meta name="description" content="Check today's best price against the last 30 days, and see if it's cheaper elsewhere in Europe.">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   :root {
@@ -164,7 +164,7 @@
   <section id="search">
     <div class="intro">
       <h1>Great product.<br>Right price?</h1>
-      <p>See if today's best price on idealo is a good one, and whether it's cheaper elsewhere in Europe.</p>
+      <p>See if today's best price is a good one, and whether it's cheaper elsewhere in Europe.</p>
       <form id="form" class="searchbox" novalidate>
         <label for="q">Product name</label>
         <div class="row">
@@ -193,7 +193,7 @@
       <p class="what">Checking</p>
       <h2 id="workTitle"></h2>
       <ul class="steps" id="steps">
-        <li>Found product on idealo</li>
+        <li>Found the product</li>
         <li>Checked shops</li>
         <li>Read 30-day price history</li>
         <li>Compared 6 countries</li>
@@ -264,7 +264,7 @@ async function search(opts = {}) {
     const r = await fetch("/api/search?q=" + encodeURIComponent(q)).then((r) => r.json());
     if (seq !== searchSeq) return;
     if (r.error) { $("picks").classList.add("hidden"); return message(r.error); }
-    if (!r.results.length) { $("picks").classList.add("hidden"); return message(r.message || "No match on idealo. Try the exact model name."); }
+    if (!r.results.length) { $("picks").classList.add("hidden"); return message(r.message || "No match found. Try the exact model name."); }
     lastResults = r.results;
     if (r.results.length === 1) return check(r.results[0], { replace: true });
     renderPicks(q);
@@ -418,10 +418,10 @@ function render(d) {
             <td class="num">${e.available ? (e.approx ? "≈ " : "") + eur(e.priceEUR) : `<span class="muted">${e.noAnswer ? "No answer" : "Not available"}</span>`}</td>
             <td class="num">${e.country === "DE" ? "<span class='muted'>–</span>" : e.diffVsDE == null ? "" :
               `<span class="${e.diffVsDE < 0 ? "down" : "up"}">${e.diffVsDE > 0 ? "+" : ""}${e.diffVsDE.toFixed(1)}%</span>`}</td>
-            <td class="num">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="View on idealo ${COUNTRY[e.country]}">View</a>` : ""}</td></tr>`).join("")}
+            <td class="num">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="View offers in ${COUNTRY[e.country]}">View</a>` : ""}</td></tr>`).join("")}
           </tbody>
         </table>
-        <p class="foot">Listed prices from idealo in each country, before shipping to Germany, so savings aren't guaranteed. Check shipping to Germany, warranty and plug type. UK prices converted at a fixed £1 = €1.17 (approx., not today's rate).</p>
+        <p class="foot">Listed prices in each country, before shipping to Germany, so savings aren't guaranteed. Check shipping to Germany, warranty and plug type. UK prices converted at a fixed £1 = €1.17 (approx., not today's rate).</p>
       </div>
     </div>`;
 

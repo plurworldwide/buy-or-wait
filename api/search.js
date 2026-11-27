@@ -6,14 +6,14 @@ export default async function handler(req, res) {
   if (!q) return send(res, 400, { error: "Missing ?q=" });
   try {
     const results = await searchDE(q);
-    if (!results.length) return send(res, 200, { results, message: "No match on idealo. Try the exact model name." });
+    if (!results.length) return send(res, 200, { results, message: "No match found. Try the exact model name." });
     send(res, 200, { results });
   } catch (err) {
     const limited = /Limit Exceeded|Too Many Requests/i.test(err.message);
     send(res, limited ? 429 : 502, {
       error: limited
-        ? "We've hit idealo's usage limit for now. Please try again later."
-        : "idealo is not responding right now. Please try again.",
+        ? "We've hit our price data limit for now. Please try again later."
+        : "Our price data source isn't responding right now. Please try again.",
       detail: err.message,
     });
   }

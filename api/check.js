@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     const limited = /Limit Exceeded|Too Many Requests/i.test(err.message);
     send(res, limited ? 429 : 502, {
       error: limited
-        ? "We've hit idealo's usage limit for now. Please try again later."
-        : "idealo is not responding right now. Please try again.",
+        ? "We've hit our price data limit for now. Please try again later."
+        : "Our price data source isn't responding right now. Please try again.",
       detail: err.message,
     });
   }
