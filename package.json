@@ -1,0 +1,15 @@
+{
+  "name": "buy-or-wait",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "login": "node scripts/login.js",
+    "stage1": "node scripts/stage1-test.js",
+    "stage4": "node scripts/stage4-test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2"
+  }
+}
