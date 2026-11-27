@@ -9,7 +9,13 @@ export default async function handler(req, res) {
     if (!results.length) return send(res, 200, { results, message: "No match on idealo. Try the exact model name." });
     send(res, 200, { results });
   } catch (err) {
-    send(res, 502, { error: "idealo is not responding right now. Please try again.", detail: err.message });
+    const limited = /Limit Exceeded|Too Many Requests/i.test(err.message);
+    send(res, limited ? 429 : 502, {
+      error: limited
+        ? "We've hit idealo's usage limit for now. Please try again later."
+        : "idealo is not responding right now. Please try again.",
+      detail: err.message,
+    });
   }
 }
 

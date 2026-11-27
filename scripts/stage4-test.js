@@ -85,10 +85,11 @@ expect("rest of the answer still there", r.verdict === "BUY_NOW" && r.shopsDE.le
 expect("notes mention FR and IT", r.dataNotes.some((t) => t.startsWith("FR")) && r.dataNotes.some((t) => t.startsWith("IT")));
 
 console.log("\n9. idealo completely down");
-r = await run(fake({ down: true }));
-expect("answer still returned, verdict UNKNOWN", r.verdict === "UNKNOWN");
-expect("no invented prices", r.prices.todayBest === null && r.europe.every((e) => e.priceEUR === null));
-expect("notes explain it", r.dataNotes.length >= 3);
+let err = await run(fake({ down: true })).then(() => null, (e) => e);
+expect("clear error instead of an empty result", err && /did not respond|Service Unavailable/.test(err.message));
+const refuse = async () => { throw new Error("Limit Exceeded"); };
+err = await checkProduct("test-limit", { getPriceHistory: refuse, getOffers: refuse, callTool: refuse }).then(() => null, (e) => e);
+expect("usage limit is reported as such", err && /Limit Exceeded/.test(err.message));
 
 console.log("\n10. Search: no PRODUCT results");
 const s = await searchDE("zzz", fake({ search: [{ itemType: "SINGLE_OFFER", name: "x" }] }));

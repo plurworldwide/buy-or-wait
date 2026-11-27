@@ -3,162 +3,302 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buy or Wait?</title>
+<title>Buy or Wait? — the right price, right now</title>
+<meta name="description" content="Check today's best price on idealo against the last 30 days, and see if it's cheaper elsewhere in Europe.">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
-  :root { --ink:#111; --muted:#555; --line:#ddd; --bg:#fff; --soft:#f5f5f4; --green:#0a7a3e; --green-bg:#e6f4ec; --amber:#9a5b00; --amber-bg:#fff3dc; --blue:#0b57d0; }
-  * { box-sizing:border-box; }
-  body { margin:0; font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--ink); background:var(--bg); }
-  main { max-width:720px; margin:0 auto; padding:24px 16px 64px; }
-  h1 { font-size:28px; margin:8px 0 4px; letter-spacing:-.02em; }
-  h2 { font-size:18px; margin:32px 0 10px; }
-  .sub { color:var(--muted); margin:0 0 20px; }
-  a { color:var(--blue); }
-  form { display:flex; gap:8px; flex-wrap:wrap; }
-  input { flex:1 1 240px; font:inherit; padding:12px 14px; border:2px solid var(--ink); border-radius:10px; }
-  button { font:inherit; font-weight:600; padding:12px 18px; border:0; border-radius:10px; background:var(--ink); color:#fff; cursor:pointer; }
-  button:disabled { opacity:.5; cursor:default; }
-  button.secondary { background:var(--soft); color:var(--ink); border:1px solid var(--line); }
-  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-  .chip { background:var(--soft); color:var(--ink); border:1px solid var(--line); font-weight:500; padding:6px 12px; border-radius:999px; font-size:14px; }
-  .msg { margin-top:16px; padding:12px 14px; border-radius:10px; background:var(--soft); }
-  .hidden { display:none !important; }
-  .cards { display:grid; gap:10px; margin-top:16px; }
-  .card { display:flex; gap:12px; align-items:center; text-align:left; width:100%; background:#fff; color:var(--ink); border:1px solid var(--line); padding:10px; }
-  .card:hover { border-color:var(--ink); }
-  .card img { width:64px; height:64px; object-fit:contain; flex:none; }
-  .card .name { font-weight:600; }
-  .card .variant { color:var(--muted); font-size:14px; font-weight:400; }
-  .card .price { margin-left:auto; font-weight:700; white-space:nowrap; }
-  .steps { list-style:none; padding:0; margin:20px 0; }
-  .steps li { padding:8px 0; color:var(--muted); }
-  .steps li::before { content:"○"; display:inline-block; width:24px; }
-  .steps li.active { color:var(--ink); font-weight:600; }
-  .steps li.active::before { content:"◌"; }
-  .steps li.done { color:var(--ink); }
-  .steps li.done::before { content:"✓"; color:var(--green); font-weight:700; }
-  .product { display:flex; gap:12px; align-items:center; margin-top:8px; }
-  .product img { width:72px; height:72px; object-fit:contain; }
-  .big { font-size:44px; font-weight:800; letter-spacing:-.02em; line-height:1.1; }
-  .verdict { margin-top:16px; padding:16px; border-radius:12px; border-left:6px solid; }
-  .verdict.BUY_NOW { background:var(--green-bg); border-color:var(--green); }
-  .verdict.WAIT { background:var(--amber-bg); border-color:var(--amber); }
-  .verdict.UNKNOWN { background:var(--soft); border-color:var(--muted); }
-  .verdict .label { font-size:22px; font-weight:800; }
-  .verdict.BUY_NOW .label { color:var(--green); }
-  .verdict.WAIT .label { color:var(--amber); }
-  .verdict p { margin:6px 0 0; }
-  .tip { font-weight:600; }
-  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px; }
-  .stat { background:var(--soft); border-radius:10px; padding:10px; }
-  .stat b { display:block; font-size:20px; }
-  .stat span { color:var(--muted); font-size:13px; }
-  .chartbox { position:relative; height:240px; }
-  table { width:100%; border-collapse:collapse; font-size:15px; }
-  th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { font-size:13px; color:var(--muted); font-weight:600; }
-  td.num, th.num { text-align:right; white-space:nowrap; }
-  tr.highlight td { background:var(--green-bg); font-weight:600; }
-  .neg { color:var(--green); } .pos { color:var(--amber); }
-  .note { color:var(--muted); font-size:14px; margin-top:8px; }
-  .notes { margin:12px 0 0; padding:10px 14px 10px 32px; border-radius:10px; background:var(--soft); color:#5c3a00; font-size:14px; }
-  .notes li { margin:2px 0; }
-  .muted { color:var(--muted); }
-  @media (max-width:520px) {
-    main { padding:16px 12px 48px; }
-    h1 { font-size:24px; }
-    .big { font-size:38px; }
-    .stat b { font-size:16px; }
-    .stat { padding:8px; }
-    table { font-size:14px; }
-    th, td { padding:8px 4px; }
-    .card img { width:48px; height:48px; }
-    form button { width:100%; }
+  :root {
+    --bg:#faf7f2; --card:#ffffff; --ink:#1d1c1a; --ink-2:#4a4743; --muted:#77726b; --line:#e9e4dc;
+    --emerald:#0d7a55; --emerald-soft:#e5f3ec; --amber:#a85b05; --amber-soft:#fdf1df; --focus:#2f5fd0;
+    --r-sm:10px; --r:16px; --r-lg:24px;
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:64px;
+    --shadow:0 1px 2px rgba(29,28,26,.04), 0 8px 24px rgba(29,28,26,.06);
   }
-  .scroll { overflow-x:auto; }
-  footer { margin-top:32px; }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; }
+  .wrap { max-width:1080px; margin:0 auto; padding:var(--s5) var(--s4) var(--s8); }
+  a { color:var(--ink); text-decoration:underline; text-decoration-color:var(--line); text-underline-offset:3px; text-decoration-thickness:2px; }
+  a:hover { text-decoration-color:var(--ink); }
+  :focus-visible { outline:3px solid var(--focus); outline-offset:2px; border-radius:6px; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .hidden { display:none !important; }
+  .brand { font-weight:800; letter-spacing:-.01em; font-size:15px; display:flex; align-items:center; gap:var(--s2); }
+  .brand i { width:10px; height:10px; border-radius:50%; background:var(--emerald); display:inline-block; }
+
+  /* ---------- Search ---------- */
+  .intro { max-width:680px; margin:var(--s8) auto 0; text-align:center; }
+  .intro h1 { font-size:clamp(36px,7vw,60px); line-height:1.03; letter-spacing:-.035em; margin:0 0 var(--s4); font-weight:800; }
+  .intro p { color:var(--ink-2); font-size:18px; margin:0 auto var(--s6); max-width:520px; }
+  .searchbox { background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:var(--s3); text-align:left; }
+  .searchbox label { display:block; font-size:13px; font-weight:600; color:var(--muted); padding:var(--s1) var(--s2) var(--s2); }
+  .row { display:flex; gap:var(--s2); }
+  input[type=search] { flex:1; min-width:0; font:inherit; font-size:18px; padding:14px 16px; border:1.5px solid var(--line); border-radius:var(--r); background:#fff; color:var(--ink); }
+  input[type=search]:focus { border-color:var(--ink); outline:none; }
+  .btn { font:inherit; font-weight:700; border:0; cursor:pointer; border-radius:var(--r); padding:14px 22px; background:var(--ink); color:#fff; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:var(--s2); white-space:nowrap; min-height:48px; }
+  .btn:hover { background:#000; }
+  .btn:disabled { opacity:.55; cursor:default; }
+  .btn.ghost { background:transparent; color:var(--ink); border:1.5px solid var(--line); }
+  .btn.ghost:hover { border-color:var(--ink); background:transparent; }
+  .btn.go { background:var(--emerald); } .btn.go:hover { background:#0a6446; }
+  .chips { display:flex; gap:var(--s2); flex-wrap:wrap; justify-content:center; margin-top:var(--s4); }
+  .chips span { color:var(--muted); font-size:14px; align-self:center; }
+  .chip { font:inherit; font-size:14px; font-weight:600; padding:8px 14px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; min-height:40px; }
+  .chip:hover { border-color:var(--ink); }
+  .error { margin:var(--s4) auto 0; max-width:680px; padding:var(--s3) var(--s4); border-radius:var(--r); background:var(--amber-soft); color:#6b3a03; font-weight:600; }
+
+  .picks { max-width:680px; margin:var(--s6) auto 0; }
+  .picks h2 { font-size:15px; color:var(--muted); font-weight:600; margin:0 0 var(--s3); }
+  .cards { display:grid; gap:var(--s2); }
+  .card { display:flex; gap:var(--s4); align-items:center; text-align:left; width:100%; background:var(--card); color:var(--ink); border:1.5px solid transparent; border-radius:var(--r); padding:var(--s3); cursor:pointer; box-shadow:var(--shadow); font:inherit; }
+  .card:hover { border-color:var(--ink); }
+  .card img, .card .ph { width:64px; height:64px; object-fit:contain; flex:none; border-radius:var(--r-sm); background:#fff; }
+  .card .name { font-weight:700; }
+  .card .variant { color:var(--muted); font-size:14px; }
+  .card .price { margin-left:auto; text-align:right; font-weight:800; white-space:nowrap; }
+  .card .price small { display:block; font-weight:500; color:var(--muted); font-size:12px; }
+  .skeleton .ph, .skeleton .bar { background:linear-gradient(90deg,#f0ece5 25%,#f7f4ef 50%,#f0ece5 75%); background-size:200% 100%; animation:sh 1.2s infinite; }
+  .skeleton .bar { height:12px; border-radius:6px; margin:6px 0; }
+  @keyframes sh { to { background-position:-200% 0; } }
+  @media (prefers-reduced-motion:reduce) { .skeleton .ph, .skeleton .bar { animation:none; } }
+
+  /* ---------- Working ---------- */
+  .working { max-width:520px; margin:var(--s8) auto 0; background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:var(--s6); }
+  .working .what { color:var(--muted); font-size:14px; margin:0; }
+  .working h2 { margin:var(--s1) 0 var(--s5); font-size:22px; letter-spacing:-.01em; }
+  .steps { list-style:none; padding:0; margin:0 0 var(--s5); }
+  .steps li { display:flex; align-items:center; gap:var(--s3); padding:var(--s2) 0; color:var(--muted); }
+  .steps li::before { content:""; width:20px; height:20px; border-radius:50%; border:2px solid var(--line); flex:none; box-sizing:border-box; }
+  .steps li.active { color:var(--ink); font-weight:600; }
+  .steps li.active::before { border-color:var(--ink); border-right-color:transparent; animation:spin .8s linear infinite; }
+  .steps li.done { color:var(--ink); }
+  .steps li.done::before { border:0; background:var(--emerald) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3 3 7-7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ---------- Result ---------- */
+  .topbar { display:flex; justify-content:space-between; align-items:center; gap:var(--s3); margin-bottom:var(--s5); }
+  .back { font:inherit; font-weight:600; font-size:14px; background:none; border:0; color:var(--ink-2); cursor:pointer; padding:var(--s2) 0; min-height:44px; }
+  .back:hover { color:var(--ink); }
+  .grid { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--s4); }
+  .grid > * { min-width:0; }
+  @media (min-width:900px) { .grid { grid-template-columns:minmax(0,5fr) minmax(0,6fr); } }
+  .panel { background:var(--card); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:var(--s5); }
+  .hero .prod { display:flex; gap:var(--s4); align-items:center; }
+  .hero .prod img { width:96px; height:96px; object-fit:contain; flex:none; }
+  .hero h1 { font-size:22px; line-height:1.2; margin:0; letter-spacing:-.01em; }
+  .hero h1:focus { outline:none; }
+  .hero .variant { color:var(--muted); margin-top:2px; }
+  .hero .price { font-size:clamp(44px,8vw,64px); font-weight:800; letter-spacing:-.035em; line-height:1; margin:var(--s5) 0 var(--s2); }
+  .hero .shop { color:var(--ink-2); }
+  .hero .cta { margin-top:var(--s5); width:100%; font-size:17px; }
+  .verdict { margin-top:var(--s5); border-radius:var(--r); padding:var(--s4) var(--s5); }
+  .verdict.BUY_NOW { background:var(--emerald-soft); }
+  .verdict.WAIT { background:var(--amber-soft); }
+  .verdict.UNKNOWN { background:#f1eee8; }
+  .pill { display:inline-block; font-weight:800; letter-spacing:.06em; font-size:13px; padding:4px 10px; border-radius:999px; color:#fff; }
+  .BUY_NOW .pill { background:var(--emerald); } .WAIT .pill { background:var(--amber); } .UNKNOWN .pill { background:var(--muted); }
+  .verdict .head { font-size:20px; font-weight:800; margin:var(--s2) 0 var(--s1); letter-spacing:-.01em; }
+  .verdict p { margin:var(--s1) 0 0; color:var(--ink-2); }
+  .verdict .tip { color:var(--ink); font-weight:600; margin-top:var(--s3); }
+  .verdict .rule { font-size:13px; color:var(--muted); margin-top:var(--s3); }
+  .notes { margin:var(--s4) 0 0; padding:var(--s3) var(--s4) var(--s3) var(--s6); border-radius:var(--r); background:#f4f0e9; color:var(--ink-2); font-size:14px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s2); margin-bottom:var(--s4); }
+  .stat { background:var(--bg); border-radius:var(--r); padding:var(--s3); }
+  .stat b { display:block; font-size:20px; letter-spacing:-.01em; }
+  .stat span { color:var(--muted); font-size:13px; }
+  .panel h2 { font-size:18px; margin:0 0 var(--s4); letter-spacing:-.01em; }
+  .panel h2 small { font-weight:500; color:var(--muted); font-size:14px; }
+  .chartbox { position:relative; height:260px; }
+  details { margin-top:var(--s3); font-size:14px; color:var(--ink-2); }
+  summary { cursor:pointer; font-weight:600; min-height:32px; }
+  .full { grid-column:1 / -1; }
+
+  .offers { display:grid; gap:var(--s2); }
+  @media (min-width:700px) { .offers { grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); } }
+  .offer { display:flex; align-items:center; gap:var(--s3); border:1.5px solid var(--line); border-radius:var(--r); padding:var(--s3) var(--s4); }
+  .offer.best { border-color:var(--emerald); }
+  .offer .who { font-weight:700; }
+  .offer .meta { color:var(--muted); font-size:13px; }
+  .offer .money { margin-left:auto; text-align:right; }
+  .offer .total { font-weight:800; font-size:18px; white-space:nowrap; }
+  .offer .split { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .offer .btn { padding:10px 16px; min-height:44px; }
+  .tag { display:inline-block; font-size:11px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--emerald); margin-bottom:2px; }
+
+  table { width:100%; border-collapse:collapse; font-size:15px; }
+  th, td { text-align:left; padding:12px 8px; border-bottom:1px solid var(--line); }
+  th { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:700; }
+  .num { text-align:right; white-space:nowrap; }
+  tr.cheap td { background:var(--emerald-soft); font-weight:700; }
+  tr.cheap td:first-child { border-radius:var(--r-sm) 0 0 var(--r-sm); }
+  tr.cheap td:last-child { border-radius:0 var(--r-sm) var(--r-sm) 0; }
+  .down { color:var(--emerald); font-weight:700; } .up { color:var(--amber); }
+  .muted { color:var(--muted); }
+  .foot { font-size:13px; color:var(--muted); margin-top:var(--s3); }
+  .fresh { font-size:13px; color:var(--muted); }
+
+  @media (max-width:560px) {
+    .wrap { padding:var(--s4) var(--s3) var(--s7); }
+    .intro { margin-top:var(--s6); }
+    .row { flex-direction:column; }
+    .panel { padding:var(--s4); border-radius:var(--r); }
+    .hero .prod img { width:72px; height:72px; }
+    .stat b { font-size:16px; }
+    .stat { padding:var(--s2) var(--s3); }
+    .offer { display:grid; grid-template-columns:minmax(0,1fr) auto; }
+    .offer .btn { grid-column:1 / -1; width:100%; }
+    .europe th:nth-child(4), .europe td:nth-child(4) { padding-left:0; }
+    th, td { padding:10px 4px; font-size:14px; }
+  }
 </style>
 </head>
 <body>
-<main>
-  <h1>Buy or Wait?</h1>
-  <p class="sub">Best price on idealo, whether it's a good one, and where in Europe it's cheaper.</p>
+<div class="wrap">
+  <header><a href="/" class="brand" style="text-decoration:none" id="home"><i aria-hidden="true"></i>Buy or Wait?</a></header>
 
+  <!-- Screen reader announcements -->
+  <div id="status" class="sr" role="status" aria-live="polite"></div>
+
+  <main>
   <!-- 1. Search -->
   <section id="search">
-    <form id="form">
-      <input id="q" placeholder="What are you about to buy?" autocomplete="off" required>
-      <button id="go">Find best price</button>
-    </form>
-    <div class="chips">
-      <button class="chip" type="button">Sony WH-1000XM5</button>
-      <button class="chip" type="button">iPhone 16 128GB</button>
-      <button class="chip" type="button">Dyson V15</button>
+    <div class="intro">
+      <h1>Great product.<br>Right price?</h1>
+      <p>See if today's best price on idealo is a good one, and whether it's cheaper elsewhere in Europe.</p>
+      <form id="form" class="searchbox" novalidate>
+        <label for="q">Product name</label>
+        <div class="row">
+          <input id="q" type="search" placeholder="What are you about to buy?" autocomplete="off" enterkeyhint="search">
+          <button id="go" class="btn">Find best price</button>
+        </div>
+      </form>
+      <div class="chips">
+        <span>Try:</span>
+        <button class="chip" type="button">Sony WH-1000XM5</button>
+        <button class="chip" type="button">iPhone 16 128GB</button>
+        <button class="chip" type="button">Dyson V15</button>
+      </div>
     </div>
-    <div id="searchMsg" class="msg hidden"></div>
+    <div id="searchMsg" class="error hidden" role="alert"></div>
     <!-- 2. Pick -->
-    <div id="cards" class="cards"></div>
+    <div id="picks" class="picks hidden">
+      <h2 id="picksTitle">Pick your product</h2>
+      <div id="cards" class="cards" aria-labelledby="picksTitle"></div>
+    </div>
   </section>
 
   <!-- 3. Working -->
-  <section id="working" class="hidden">
-    <ul class="steps" id="steps">
-      <li>Found product on idealo</li>
-      <li>Checked shops</li>
-      <li>Read 30-day price history</li>
-      <li>Compared 6 countries</li>
-    </ul>
+  <section id="working" class="hidden" aria-labelledby="workTitle">
+    <div class="working">
+      <p class="what">Checking</p>
+      <h2 id="workTitle"></h2>
+      <ul class="steps" id="steps">
+        <li>Found product on idealo</li>
+        <li>Checked shops</li>
+        <li>Read 30-day price history</li>
+        <li>Compared 6 countries</li>
+      </ul>
+      <button class="btn ghost" id="cancel" type="button">Cancel</button>
+    </div>
   </section>
 
   <!-- 4. Result -->
   <section id="result" class="hidden"></section>
-</main>
+  </main>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const eur = (n) => n == null ? "–" : n.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
 const day = (iso) => iso ? new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : "";
-const COUNTRY = { DE: "🇩🇪 Germany", AT: "🇦🇹 Austria", FR: "🇫🇷 France", IT: "🇮🇹 Italy", ES: "🇪🇸 Spain", GB: "🇬🇧 United Kingdom" };
-let chart;
+const COUNTRY = { DE: "Germany", AT: "Austria", FR: "France", IT: "Italy", ES: "Spain", GB: "United Kingdom" };
+const announce = (t) => { $("status").textContent = ""; setTimeout(() => $("status").textContent = t, 50); };
+let chart, lastResults = [], searchSeq = 0, checkCtrl = null;
 
 function show(section) {
   for (const id of ["search", "working", "result"]) $(id).classList.toggle("hidden", id !== section);
+}
+
+// ---------- URL: ?q=… for a search, ?p=… for a result, so refresh and sharing work ----------
+function setUrl(params, replace) {
+  const url = params ? "?" + new URLSearchParams(params) : location.pathname;
+  history[replace ? "replaceState" : "pushState"](params || {}, "", url);
+}
+function route() {
+  const u = new URLSearchParams(location.search);
+  if (u.get("p")) return check({ productRef: u.get("p"), name: u.get("n") || "" }, { fromUrl: true });
+  if (u.get("q")) { $("q").value = u.get("q"); return search({ fromUrl: true }); }
+  resetHome();
+}
+window.addEventListener("popstate", route);
+$("home").onclick = (e) => { e.preventDefault(); setUrl(null); resetHome(); };
+
+function resetHome() {
+  if (checkCtrl) checkCtrl.abort();
+  $("q").value = ""; $("picks").classList.add("hidden"); $("searchMsg").classList.add("hidden");
+  show("search");
 }
 
 // ---------- 1. Search ----------
 document.querySelectorAll(".chip").forEach((b) => b.onclick = () => { $("q").value = b.textContent; search(); });
 $("form").onsubmit = (e) => { e.preventDefault(); search(); };
 
-async function search() {
-  const q = $("q").value.trim();
-  if (!q) return;
-  $("go").disabled = true; $("go").textContent = "Searching…";
-  $("cards").innerHTML = ""; $("searchMsg").classList.add("hidden");
-  try {
-    const r = await fetch("/api/search?q=" + encodeURIComponent(q)).then((r) => r.json());
-    if (r.error) return message(r.error);
-    if (!r.results.length) return message(r.message || "No match on idealo. Try the exact model name.");
-    if (r.results.length === 1) return check(r.results[0]);
-    // ---------- 2. Pick ----------
-    $("cards").innerHTML = r.results.map((p, i) => `
-      <button class="card" data-i="${i}">
-        ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : ""}
-        <div><div class="name">${esc(p.name)}</div><div class="variant">${esc(p.variant)}</div></div>
-        <div class="price">${p.price != null ? "from " + eur(p.price) : ""}</div>
-      </button>`).join("");
-    $("cards").querySelectorAll(".card").forEach((c) => c.onclick = () => check(r.results[c.dataset.i]));
-  } catch {
-    message("Couldn't reach the server. Please try again.");
-  } finally {
-    $("go").disabled = false; $("go").textContent = "Find best price";
-  }
-}
 function message(t) { $("searchMsg").textContent = t; $("searchMsg").classList.remove("hidden"); }
 
+async function search(opts = {}) {
+  const q = $("q").value.trim();
+  $("q").value = q;
+  $("searchMsg").classList.add("hidden");
+  if (!q) { $("picks").classList.add("hidden"); message("Enter a product name."); $("q").focus(); return; }
+  if (!opts.fromUrl) setUrl({ q });
+  show("search");
+  const seq = ++searchSeq; // ignore answers from older searches
+  $("go").disabled = true; $("go").textContent = "Searching…";
+  $("picksTitle").textContent = `Searching for “${q}”…`;
+  $("cards").innerHTML = Array.from({ length: 3 }, () =>
+    `<div class="card skeleton" aria-hidden="true"><div class="ph"></div><div style="flex:1"><div class="bar" style="width:60%"></div><div class="bar" style="width:35%"></div></div></div>`).join("");
+  $("picks").classList.remove("hidden");
+  announce(`Searching for ${q}`);
+  try {
+    const r = await fetch("/api/search?q=" + encodeURIComponent(q)).then((r) => r.json());
+    if (seq !== searchSeq) return;
+    if (r.error) { $("picks").classList.add("hidden"); return message(r.error); }
+    if (!r.results.length) { $("picks").classList.add("hidden"); return message(r.message || "No match on idealo. Try the exact model name."); }
+    lastResults = r.results;
+    if (r.results.length === 1) return check(r.results[0], { replace: true });
+    renderPicks(q);
+    announce(`${r.results.length} products found. Pick one.`);
+  } catch {
+    if (seq === searchSeq) { $("picks").classList.add("hidden"); message("Couldn't reach the server. Please try again."); }
+  } finally {
+    if (seq === searchSeq) { $("go").disabled = false; $("go").textContent = "Find best price"; }
+  }
+}
+
+// ---------- 2. Pick ----------
+function renderPicks(q) {
+  $("picksTitle").textContent = `Pick your product for “${q}”`;
+  $("cards").innerHTML = lastResults.map((p, i) => `
+    <button class="card" data-i="${i}" type="button">
+      ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" alt="">` : `<div class="ph"></div>`}
+      <div><div class="name">${esc(p.name)}</div><div class="variant">${esc(p.variant)}</div></div>
+      <div class="price">${p.price != null ? `<small>from</small>${eur(p.price)}` : ""}</div>
+    </button>`).join("");
+  $("cards").querySelectorAll(".card").forEach((c) => c.onclick = () => check(lastResults[c.dataset.i]));
+  $("picks").classList.remove("hidden");
+}
+
 // ---------- 3. Working ----------
-async function check(p) {
+async function check(p, opts = {}) {
+  if (checkCtrl) checkCtrl.abort();
+  const ctrl = checkCtrl = new AbortController();
+  const fullName = [p.name, p.variant].filter(Boolean).join(" · ");
+  if (!opts.fromUrl) setUrl({ p: p.productRef, n: fullName }, opts.replace);
+  $("workTitle").textContent = fullName || "Your product";
   show("working");
+  $("cancel").focus();
+  announce(`Checking prices for ${fullName || "your product"}. This takes a few seconds.`);
   const steps = [...$("steps").children];
   steps.forEach((li) => li.className = "");
   steps[0].className = "done";
@@ -166,106 +306,201 @@ async function check(p) {
   // The server does all steps in one go; tick them while we wait, finish when the answer arrives.
   const timer = setInterval(() => { if (i < steps.length - 1) { steps[i].className = "done"; steps[++i].className = "active"; } }, 900);
   try {
-    const res = await fetch("/api/check?productRef=" + encodeURIComponent(p.productRef));
+    const res = await fetch("/api/check?productRef=" + encodeURIComponent(p.productRef), { signal: ctrl.signal });
     const data = await res.json();
     clearInterval(timer);
     if (data.error) { show("search"); return message(data.error); }
     steps.forEach((li) => li.className = "done");
-    await new Promise((r) => setTimeout(r, 300));
+    await new Promise((r) => setTimeout(r, 250));
+    if (ctrl.signal.aborted) return;
     render(data);
-  } catch {
-    clearInterval(timer); show("search"); message("Couldn't reach the server. Please try again.");
+  } catch (e) {
+    clearInterval(timer);
+    if (e.name === "AbortError") return;
+    show("search"); message("Couldn't reach the server. Please try again.");
   }
 }
+$("cancel").onclick = () => {
+  if (checkCtrl) checkCtrl.abort();
+  history.back();
+  announce("Cancelled.");
+};
 
 // ---------- 4. Result ----------
 function render(d) {
   const p = d.prices, prod = d.product;
-  const label = { BUY_NOW: "BUY NOW", WAIT: "WAIT", UNKNOWN: "NOT SURE" }[d.verdict];
   const de = d.europe.find((e) => e.country === "DE");
+  const days = d.history.length || 30;
+  const best = d.shopsDE[0];
+  const head = {
+    BUY_NOW: "Good price. Buy now.",
+    WAIT: p.aboveLow != null ? `Wait. It's ${eur(p.aboveLow)} above the recent low.` : "Wait.",
+    UNKNOWN: "Not enough history to judge.",
+  }[d.verdict];
+  const checked = d.checkedAt ? new Date(d.checkedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "";
+  const total = (s) => s.price + (s.shipping || 0);
+
   $("result").innerHTML = `
-    <div class="product">
-      ${prod.imageUrl ? `<img src="${esc(prod.imageUrl)}" alt="">` : ""}
-      <div><b>${esc(prod.name)}</b><br><span class="variant">${esc(prod.variant)}</span>
-      ${prod.idealoUrl ? `<br><a href="${esc(prod.idealoUrl)}" target="_blank" rel="noopener">View on idealo</a>` : ""}</div>
+    <div class="topbar">
+      <button class="back" id="change" type="button">← Change product</button>
+      ${checked ? `<span class="fresh">Prices checked today at ${checked}</span>` : ""}
     </div>
 
-    <h2>Best price today</h2>
-    ${p.todayBest != null ? `
-      <div class="big">${eur(p.todayBest)}</div>
-      <div>at <b>${esc(p.todayBestShop)}</b> · <a href="${esc(p.todayBestUrl)}" target="_blank" rel="noopener">Go to shop →</a></div>`
-      : `<div>No shop prices available right now.</div>`}
+    <div class="grid">
+      <div class="panel hero">
+        <div class="prod">
+          ${prod.imageUrl ? `<img src="${esc(prod.imageUrl)}" alt="">` : ""}
+          <div>
+            <h1 id="resultTitle" tabindex="-1">${esc(prod.name)}</h1>
+            ${prod.variant ? `<div class="variant">${esc(prod.variant)}</div>` : ""}
+          </div>
+        </div>
 
-    <div class="verdict ${d.verdict}">
-      <div class="label">${label}</div>
-      ${d.reason ? `<p>${esc(d.reason)}</p>` : `<p>Not enough price history to judge this price.</p>`}
-      ${d.tip ? `<p class="tip">💡 ${esc(d.tip)}</p>` : ""}
-    </div>
-    ${d.dataNotes.length ? `<ul class="notes">${d.dataNotes.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+        ${best ? `
+          <div class="price">${eur(best.price)}</div>
+          <div class="shop">Best price in Germany today at <b>${esc(best.shop)}</b>${best.shipping ? ` · plus ${eur(best.shipping)} shipping` : " · free shipping"}</div>
+          <a class="btn go cta" href="${esc(best.url)}" target="_blank" rel="noopener">View offer · ${eur(total(best))}</a>`
+          : `<p class="muted" style="margin-top:24px">No shop prices available right now.</p>`}
 
-    <div class="stats">
-      <div class="stat"><b>${eur(p.todayBest)}</b><span>Today's best</span></div>
-      <div class="stat"><b>${eur(p.min30)}</b><span>30-day low${p.lowestDate ? " · " + day(p.lowestDate) : ""}</span></div>
-      <div class="stat"><b>${eur(p.avg30)}</b><span>30-day average</span></div>
-    </div>
+        <div class="verdict ${d.verdict}">
+          <span class="pill">${{ BUY_NOW: "BUY NOW", WAIT: "WAIT", UNKNOWN: "NOT SURE" }[d.verdict]}</span>
+          <div class="head">${esc(head)}</div>
+          ${d.reason ? `<p>${esc(d.reason)}</p>` : ""}
+          ${d.tip ? `<p class="tip">${esc(d.tip)}</p>` : ""}
+          <p class="rule">We say BUY NOW when today's best price is within 2% of the lowest price in the last ${days} days. A past low doesn't promise another drop.</p>
+        </div>
+        ${d.dataNotes.length ? `<ul class="notes">${d.dataNotes.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+      </div>
 
-    ${d.history.length ? `<h2>Last 30 days in Germany</h2><div class="chartbox"><canvas id="chart"></canvas></div>` : ""}
+      <div class="panel">
+        <div class="stats">
+          <div class="stat"><b>${eur(p.todayBest)}</b><span>Today's best</span></div>
+          <div class="stat"><b>${eur(p.min30)}</b><span>Low${p.lowestDate ? " · " + day(p.lowestDate) : ""}</span></div>
+          <div class="stat"><b>${eur(p.avg30)}</b><span>Average</span></div>
+        </div>
+        ${d.history.length ? `
+          <h2>Price in Germany <small>· last ${days} days</small></h2>
+          <div class="chartbox"><canvas id="chart" role="img" aria-label="${esc(chartSummary(d))}"></canvas></div>
+          <details>
+            <summary>Show prices as a table</summary>
+            <table><thead><tr><th>Date</th><th class="num">Lowest price</th></tr></thead><tbody>
+              ${d.history.map((h) => `<tr><td>${day(h.date)}</td><td class="num">${eur(h.price)}</td></tr>`).join("")}
+            </tbody></table>
+          </details>` : `<p class="muted">No price history available for this product.</p>`}
+      </div>
 
-    <h2>Top shops in Germany</h2>
-    ${d.shopsDE.length ? `<div class="scroll"><table>
-      <tr><th>Shop</th><th class="num">Price</th><th class="num">Shipping</th><th class="hide-sm">Delivery</th><th></th></tr>
-      ${d.shopsDE.map((s) => `<tr>
-        <td>${esc(s.shop)}</td><td class="num"><b>${eur(s.price)}</b></td>
-        <td class="num">${s.shipping == null ? "–" : s.shipping === 0 ? "Free" : eur(s.shipping)}</td>
-        <td class="hide-sm">${esc(s.delivery)}</td>
-        <td><a href="${esc(s.url)}" target="_blank" rel="noopener">Buy</a></td></tr>`).join("")}
-    </table></div>` : `<p>No shop offers available right now.</p>`}
+      <div class="panel full">
+        <h2>Shops in Germany <small>· price including shipping</small></h2>
+        ${d.shopsDE.length ? `<div class="offers">
+          ${d.shopsDE.map((s, i) => `
+            <div class="offer ${i === 0 ? "best" : ""}">
+              <div>
+                ${i === 0 ? `<div class="tag">Cheapest</div>` : ""}
+                <div class="who">${esc(s.shop)}</div>
+                <div class="meta">${esc(s.delivery) || "Delivery time not given"}</div>
+              </div>
+              <div class="money">
+                <div class="total">${eur(total(s))}</div>
+                <div class="split">${s.shipping ? `${eur(s.price)} + ${eur(s.shipping)} shipping` : "Free shipping"}</div>
+              </div>
+              <a class="btn ${i === 0 ? "go" : "ghost"}" href="${esc(s.url)}" target="_blank" rel="noopener" aria-label="Buy at ${esc(s.shop)} for ${eur(total(s))}">Buy</a>
+            </div>`).join("")}
+        </div>` : `<p class="muted">No shop offers available right now.</p>`}
+      </div>
 
-    <h2>Cheaper elsewhere in Europe?</h2>
-    <div class="scroll"><table>
-      <tr><th>Country</th><th class="num">Best price</th><th class="num">vs Germany</th><th></th></tr>
-      ${d.europe.map((e) => `<tr class="${e.country === d.cheapestCountry ? "highlight" : ""}">
-        <td>${COUNTRY[e.country] || e.country}</td>
-        <td class="num">${e.available ? (e.approx ? "approx. " : "") + eur(e.priceEUR) : `<span class="muted">${e.noAnswer ? "No answer from idealo" : "Not available"}</span>`}</td>
-        <td class="num">${e.country === "DE" ? "–" : e.diffVsDE == null ? "" :
-          `<span class="${e.diffVsDE < 0 ? "neg" : "pos"}">${e.diffVsDE > 0 ? "+" : ""}${e.diffVsDE.toFixed(1)}%</span>`}</td>
-        <td>${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener">View</a>` : ""}</td></tr>`).join("")}
-    </table></div>
-    <p class="note">Check shipping to Germany, warranty and plug type. UK prices converted at 1 £ = 1.17 € (approx.).</p>
+      <div class="panel full">
+        <h2>Cheaper elsewhere in Europe?</h2>
+        <table class="europe">
+          <thead><tr><th>Country</th><th class="num">Listed price</th><th class="num">vs Germany</th><th><span class="sr">Link</span></th></tr></thead>
+          <tbody>
+          ${d.europe.map((e) => `<tr class="${e.country === d.cheapestCountry ? "cheap" : ""}">
+            <td>${COUNTRY[e.country] || e.country}</td>
+            <td class="num">${e.available ? (e.approx ? "≈ " : "") + eur(e.priceEUR) : `<span class="muted">${e.noAnswer ? "No answer" : "Not available"}</span>`}</td>
+            <td class="num">${e.country === "DE" ? "<span class='muted'>–</span>" : e.diffVsDE == null ? "" :
+              `<span class="${e.diffVsDE < 0 ? "down" : "up"}">${e.diffVsDE > 0 ? "+" : ""}${e.diffVsDE.toFixed(1)}%</span>`}</td>
+            <td class="num">${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener" aria-label="View on idealo ${COUNTRY[e.country]}">View</a>` : ""}</td></tr>`).join("")}
+          </tbody>
+        </table>
+        <p class="foot">Listed prices from idealo in each country, before shipping to Germany, so savings aren't guaranteed. Check shipping to Germany, warranty and plug type. UK prices converted at a fixed £1 = €1.17 (approx., not today's rate).</p>
+      </div>
+    </div>`;
 
-    <footer><button class="secondary" id="again">Check another product</button></footer>`;
-
-  $("again").onclick = () => { $("q").value = ""; $("cards").innerHTML = ""; show("search"); $("q").focus(); };
+  $("change").onclick = () => {
+    if (lastResults.length > 1) { show("search"); renderPicks($("q").value); setUrl({ q: $("q").value }); $("cards").querySelector(".card")?.focus(); }
+    else { setUrl(null); resetHome(); $("q").focus(); }
+  };
   show("result");
   window.scrollTo(0, 0);
   if (d.history.length) drawChart(d.history, p.min30);
+  $("resultTitle").focus();
+  announce(`Result: ${head} Best price ${eur(p.todayBest)}${best ? " at " + best.shop : ""}.`);
 }
+
+function chartSummary(d) {
+  const h = d.history, first = h[0], last = h[h.length - 1];
+  return `Price chart for the last ${h.length} days. Started at ${eur(first.price)} on ${day(first.date)}, now ${eur(last.price)}. Lowest ${eur(d.prices.min30)}${d.prices.lowestDate ? " on " + day(d.prices.lowestDate) : ""}.`;
+}
+
+// Small Chart.js plugin: writes "Low" and "Today" labels next to those points.
+const labelsPlugin = {
+  id: "labels",
+  afterDatasetsDraw(c, _, opts) {
+    const meta = c.getDatasetMeta(0), ctx = c.ctx;
+    ctx.save();
+    ctx.font = "600 12px system-ui, sans-serif";
+    for (const { index, text, color } of opts.items || []) {
+      const pt = meta.data[index]; if (!pt) continue;
+      ctx.fillStyle = color;
+      ctx.textAlign = index > meta.data.length * 0.8 ? "right" : index < meta.data.length * 0.2 ? "left" : "center";
+      ctx.fillText(text, pt.x, pt.y + (opts.below?.includes(index) ? 22 : -12));
+    }
+    ctx.restore();
+  },
+};
 
 function drawChart(history, min) {
   if (chart) chart.destroy();
-  const lowIdx = history.findIndex((h) => h.price === min);
+  const prices = history.map((h) => h.price);
+  const lowIdx = prices.indexOf(Math.min(...prices));
+  const lastIdx = prices.length - 1;
+  const EM = "#0d7a55", INK = "#1d1c1a";
   chart = new Chart($("chart"), {
     type: "line",
     data: {
       labels: history.map((h) => day(h.date)),
-      datasets: [
-        { label: "Lowest price", data: history.map((h) => h.price), borderColor: "#111", borderWidth: 2, tension: 0,
-          pointRadius: history.map((_, i) => i === lowIdx ? 6 : 0),
-          pointBackgroundColor: "#0a7a3e", pointBorderColor: "#0a7a3e" },
-        { label: "30-day low", data: history.map(() => min), borderColor: "#0a7a3e", borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0 },
-      ],
+      datasets: [{
+        data: prices, borderColor: EM, borderWidth: 2.5, tension: 0, fill: true,
+        backgroundColor: (c) => { const g = c.chart.ctx.createLinearGradient(0, 0, 0, 260); g.addColorStop(0, "rgba(13,122,85,.14)"); g.addColorStop(1, "rgba(13,122,85,0)"); return g; },
+        pointRadius: prices.map((_, i) => i === lowIdx || i === lastIdx ? 5 : 0),
+        pointBackgroundColor: prices.map((_, i) => i === lastIdx ? INK : EM),
+        pointBorderColor: "#fff", pointBorderWidth: 2, pointHoverRadius: 5,
+      }],
     },
+    plugins: [labelsPlugin],
     options: {
       maintainAspectRatio: false,
+      layout: { padding: { top: 22, bottom: 4, left: 4, right: 4 } },
       interaction: { mode: "index", intersect: false },
       plugins: {
-        legend: { labels: { boxWidth: 14 } },
-        tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${eur(c.parsed.y)}` } },
+        legend: { display: false },
+        tooltip: { displayColors: false, backgroundColor: INK, padding: 10, callbacks: { label: (c) => eur(c.parsed.y) } },
+        labels: {
+          items: [
+            { index: lowIdx, text: `Low ${eur(prices[lowIdx])}`, color: EM },
+            ...(lastIdx !== lowIdx ? [{ index: lastIdx, text: "Today", color: INK }] : [{ index: lastIdx, text: "Today = low", color: EM }]),
+          ],
+          below: [],
+        },
       },
-      scales: { y: { ticks: { callback: (v) => v + " €" } }, x: { ticks: { maxTicksLimit: 6 } } },
+      scales: {
+        y: { grid: { color: "#f0ebe3" }, border: { display: false }, ticks: { color: "#77726b", callback: (v) => v + " €", maxTicksLimit: 5 } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { color: "#77726b", maxTicksLimit: 6, maxRotation: 0 } },
+      },
     },
   });
 }
+
+route();
 </script>
 </body>
 </html>
