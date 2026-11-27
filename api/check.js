@@ -10,8 +10,8 @@ export default async function handler(req, res) {
     const limited = /Limit Exceeded|Too Many Requests/i.test(err.message);
     send(res, limited ? 429 : 502, {
       error: limited
-        ? "We've hit our price data limit for now. Please try again later."
-        : "Our price data source isn't responding right now. Please try again.",
+        ? "So many prices checked today that we need a short break. Please try again in an hour or so."
+        : "Prices are taking longer than usual to load. Please try again in a moment.",
       detail: err.message,
     });
   }
